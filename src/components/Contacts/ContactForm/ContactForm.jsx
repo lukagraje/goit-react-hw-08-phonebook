@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { nanoid } from "nanoid";
 import PropTypes, { func } from "prop-types";
-import styles from "./contacs.module.scss";
+import { Form, Input, Button, Label } from "./ContactFormStyles";
 
 export default function ContactForm({ onSubmit }) {
   const [name, setName] = useState("");
@@ -44,9 +44,9 @@ export default function ContactForm({ onSubmit }) {
   };
 
   return (
-    <form className={styles.form} onSubmit={handleSubmit}>
-      <label htmlFor={nameId}>Name</label>
-      <input
+    <Form onSubmit={handleSubmit}>
+      <Label htmlFor={nameId}>Name</Label>
+      <Input
         id={nameId}
         type="text"
         name="name"
@@ -55,8 +55,8 @@ export default function ContactForm({ onSubmit }) {
         value={name}
         onChange={handleChange}
       />
-      <label htmlFor={numId}>Phone number</label>
-      <input
+      <Label htmlFor={numId}>Phone number</Label>
+      <Input
         id={numId}
         type="tel"
         name="number"
@@ -65,8 +65,8 @@ export default function ContactForm({ onSubmit }) {
         value={number}
         onChange={handleChange}
       />
-      <button type="submit">Add contact</button>
-    </form>
+      <Button type="submit">Add contact</Button>
+    </Form>
   );
 }
 

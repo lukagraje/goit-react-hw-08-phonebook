@@ -1,12 +1,26 @@
 import PropTypes from "prop-types";
-import css from "./item.module.scss";
+import {
+  ItemContainer,
+  ContactName,
+  ContactNumber,
+  DeleteButton,
+  LiWrapper,
+  DivWrapper
+} from "./ContactItemStyles.styled";
 
 const ContactItem = ({ contact, deleteContact }) => {
   return (
-    <li key={contact.id}>
-      {contact.name}: {contact.number}
-      <button className={css.button} onClick={() => deleteContact(contact.id) }>Delete contact</button>
-    </li>
+    <ItemContainer>
+      <LiWrapper key={contact.id}>
+        <DivWrapper>
+          <ContactName>{contact.name}</ContactName>
+          <ContactNumber> {contact.number}</ContactNumber>
+        </DivWrapper>
+        <DeleteButton onClick={() => deleteContact(contact.id)}>
+          Delete contact
+        </DeleteButton>
+      </LiWrapper>
+    </ItemContainer>
   );
 };
 

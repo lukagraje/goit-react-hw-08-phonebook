@@ -1,73 +1,56 @@
-import React, { useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { nanoid } from "nanoid";
-import ContactForm from "./ContactForm/ContactForm";
-import ContactList from "./ContactList/ContactList";
-import Filter from "./SearchFilter/Filter";
-import {
-  fetchContacts,
-  addContact,
-  deleteContact,
-} from "../../redux/slices/contactsSlice";
-import { setFilter } from "../../redux/slices/filtersSlice";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { useEffect, lazy } from "react";
+import { useDispatch } from "react-redux";
+import { useAuth } from "../../redux/hooks/useAuth";
+import { refreshUser } from "../../redux/AuthOperations";
+import { SharedLayout } from "../SharedLayout/SharedLayout";
+import { Container } from "./App.styled";
+import NotFound from "../NotFound/NotFound";
+import { PrivateRoute } from "../route/PrivateRoute";
+import { RestrictedRoute } from "../route/RestrictedRoute";
+
+const HomePage = lazy(() => import("../../pages/HomePage"));
+const PhonebookPage = lazy(() => import("../../pages/PhonebookPage"));
+const LoginPage = lazy(() => import("../../pages/LoginPage"));
+const RegisterPage = lazy(() => import("../../pages/RegisterPage"));
 
 export default function App() {
-  const contacts = useSelector((state) => state.contacts.items);
-  const filter = useSelector((state) => state.filter);
   const dispatch = useDispatch();
+  const { isRefreshing } = useAuth();
 
   useEffect(() => {
-    dispatch(fetchContacts());
+    dispatch(refreshUser());
   }, [dispatch]);
 
-  // useEffect(() => {
-  //   const storedContacts = JSON.parse(localStorage.getItem("contacts"));
-  //   if (storedContacts && storedContacts.length > 0) {
-  //     storedContacts.forEach((contact) => dispatch(addContact(contact)));
-  //   }
-  // }, [dispatch]);
-
-  // useEffect(() => {
-  //   localStorage.setItem("contacts", JSON.stringify(contacts));
-  // }, [contacts]);
-
-  const handleAddContact = (name, number) => {
-    const newContact = { name, number, id: nanoid() };
-    const checkContact = contacts.some(
-      (contact) => contact.name.toLowerCase() === name.toLowerCase(),
-    );
-
-    if (checkContact) {
-      alert(`${name} is already in contacts`);
-    } else {
-      dispatch(addContact(newContact));
-    }
-  };
-
-  const handleDeleteContact = (contactId) => {
-    dispatch(deleteContact(contactId));
-  };
-
-  const handleChange = (ev) => {
-    dispatch(setFilter(ev.target.value));
-  };
-
-  const getFilteredContacts = () => {
-    return contacts.filter((contact) =>
-      contact.name.toLowerCase().includes(filter.toLowerCase()),
-    );
-  };
-
-  return (
-    <div>
-      <h1>Phonebook</h1>
-      <ContactForm onSubmit={handleAddContact} />
-      <h2>Contacts</h2>
-      <Filter value={filter} onChange={handleChange} />
-      <ContactList
-        contacts={getFilteredContacts()}
-        deleteContact={handleDeleteContact}
-      />
-    </div>
+  return isRefreshing ? (
+    <p>Loading...</p>
+  ) : (
+      <Container>
+    <BrowserRouter basename="/goit-react-hw-08-phonebook/">
+      <Routes>
+        <Route path="/" element={<SharedLayout />}>
+          <Route index element={<HomePage />} />
+          <Route
+            path="register"
+            element={
+              <RestrictedRoute element={RegisterPage} redirectTo="/contacts" />
+            }
+          />
+          <Route
+            path="login"
+            element={
+              <RestrictedRoute element={LoginPage} redirectTo="/contacts" />
+            }
+          />
+          <Route
+            path="contacts"
+            element={
+              <PrivateRoute element={PhonebookPage} redirectTo="/login" />
+            }
+          />
+        </Route>
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+    </BrowserRouter></Container>
   );
 }
